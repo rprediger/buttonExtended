@@ -38,6 +38,7 @@ ezButton::ezButton(int pin, int mode) {
 	debounceTime = 0;
 	count = 0;
 	countMode = COUNT_FALLING;
+    pressedLevel = LOW;
 
 	pinMode(btnPin, mode);
 
@@ -52,23 +53,27 @@ void ezButton::setDebounceTime(unsigned long time) {
 	debounceTime = time;
 }
 
-int ezButton::getState(void) {
+void setLevelMode(bool pressedLevel) {
+    this.pressedLevel = pressedLevel;
+}
+
+bool ezButton::getState(void) {
 	return lastSteadyState;
 }
 
-int ezButton::getStateRaw(void) {
+bool ezButton::getStateRaw(void) {
 	return digitalRead(btnPin);
 }
 
 bool ezButton::isPressed(void) {
-	if(previousSteadyState == HIGH && lastSteadyState == LOW)
+	if(previousSteadyState != pressedLevel && lastSteadyState == pressedLevel)
 		return true;
 	else
 		return false;
 }
 
 bool ezButton::isReleased(void) {
-	if(previousSteadyState == LOW && lastSteadyState == HIGH)
+	if(previousSteadyState == pressedLevel && lastSteadyState != pressedLevel)
 		return true;
 	else
 		return false;
@@ -116,11 +121,11 @@ void ezButton::loop(void) {
 		if(countMode == COUNT_BOTH)
 			count++;
 		else if(countMode == COUNT_FALLING){
-			if(previousSteadyState == HIGH && lastSteadyState == LOW)
+			if(previousSteadyState != pressedLevel && lastSteadyState == pressedLevel)
 				count++;
 		}
 		else if(countMode == COUNT_RISING){
-			if(previousSteadyState == LOW && lastSteadyState == HIGH)
+			if(previousSteadyState == pressedLevel && lastSteadyState != pressedLevel)
 				count++;
 		}
 	}
