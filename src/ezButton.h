@@ -41,31 +41,43 @@
 class ezButton
 {
 	private:
+        // Config
 		int btnPin;
-		unsigned long debounceTime;
-		unsigned long count;
-		int countMode;
-
+        int countMode;
         bool pressedLevel;
+        unsigned long debounceTime;
+        unsigned long longPressTime;
 
-		bool previousSteadyState;  // the previous steady state from the input pin, used to detect pressed and released event
+        // Variable used for logic
+        bool previousSteadyState;  // the previous steady state from the input pin, used to detect pressed and released event
 		bool lastSteadyState;      // the last steady state from the input pin
 		bool lastFlickerableState; // the last flickerable state from the input pin
+        unsigned long lastDebounceTime; // the last time the output pin was toggled
+        bool pressDetect;
 
-		unsigned long lastDebounceTime; // the last time the output pin was toggled
+        unsigned long count;        //Counter
+        unsigned long lastPressTime; //last time the button was press
+
 	public:
 		ezButton(int pin);
 		ezButton(int pin, int mode);
 		void setDebounceTime(unsigned long time);
         void setLevelMode(bool pressedLevel);
+        void setLongPress(unsigned long time);
+
 		bool getState(void);
 		bool getStateRaw(void);
-		bool isPressed(void);
+		
+        bool isPressed(void);
 		bool isReleased(void);
-		void setCountMode(int mode);
+        bool isLongPress(void);
+        bool isShortPress(void);
+		
+        void setCountMode(int mode);
 		unsigned long getCount(void);
 		void resetCount(void);
-		void loop(void);
+		
+        void loop(void);
 };
 
 #endif

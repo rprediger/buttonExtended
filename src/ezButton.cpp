@@ -47,14 +47,20 @@ ezButton::ezButton(int pin, int mode) {
 	lastFlickerableState = previousSteadyState;
 
 	lastDebounceTime = 0;
+    longPressTime = 300;
+    pressDetect = true; // Prevents long press detection
 }
 
 void ezButton::setDebounceTime(unsigned long time) {
 	debounceTime = time;
 }
 
-void setLevelMode(bool pressedLevel) {
-    this.pressedLevel = pressedLevel;
+void ezButton::setLevelMode(bool pressedLevel) {
+    this->pressedLevel = pressedLevel;
+}
+
+void ezButton::setLongPress(unsigned long time) {
+    longPressTime = time;
 }
 
 bool ezButton::getState(void) {
@@ -77,6 +83,26 @@ bool ezButton::isReleased(void) {
 		return true;
 	else
 		return false;
+}
+
+bool ezButton::isLongPress(void) {
+    if (pressDetect == false) {
+        if ((millis() - lastPressTime) >= longPressTime) {
+            pressDetect = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ezButton::isShortPress(void) {
+    if (isReleased()) {
+        if ((millis() - lastPressTime) < longPressTime) {
+            pressDetect = true;
+            return true;
+        }
+    }
+    return false;
 }
 
 void ezButton::setCountMode(int mode) {
@@ -118,15 +144,21 @@ void ezButton::loop(void) {
 	}
 
 	if(previousSteadyState != lastSteadyState){
-		if(countMode == COUNT_BOTH)
+		// Counter
+        if(countMode == COUNT_BOTH) {
 			count++;
-		else if(countMode == COUNT_FALLING){
-			if(previousSteadyState != pressedLevel && lastSteadyState == pressedLevel)
+		} else if(countMode == COUNT_FALLING){
+			if(isPressed())
+				count++;
+		} else if(countMode == COUNT_RISING){
+			 if(isReleased())
 				count++;
 		}
-		else if(countMode == COUNT_RISING){
-			if(previousSteadyState == pressedLevel && lastSteadyState != pressedLevel)
-				count++;
-		}
+
+        //Short and Long press
+        if (isPressed()) {
+            lastPressTime = lastDebounceTime;
+            pressDetect = false;
+        }
 	}
 }
