@@ -33,8 +33,7 @@
 
 ezButtonExt::ezButtonExt(int pin) : ezButtonExt(pin, INPUT_PULLUP){};
 
-ezButtonExt::ezButtonExt(int pin, int mode)
-{
+ezButtonExt::ezButtonExt(int pin, int mode) {
     btnPin = pin;
     debounceTime = 0;
     count = 0;
@@ -49,73 +48,52 @@ ezButtonExt::ezButtonExt(int pin, int mode)
 
     lastDebounceTime = 0;
     longClickTime = 350;
-    clickDetect = true;          // Prevents long press detection
-    sequentialShortClicks = 0;   // Counter of sequential clicks
-    resetSequentialCont = false; // Logic for reset counter
+    clickDetect = true;           // Prevents long press detection
+    sequentialShortClicks = 0;    // Counter of sequential clicks
+    resetSequentialCont = false;  // Logic for reset counter
 }
 
-void ezButtonExt::setDebounceTime(unsigned long time)
-{
-    debounceTime = time;
-}
+void ezButtonExt::setDebounceTime(unsigned long time) { debounceTime = time; }
 
-void ezButtonExt::setLevelMode(bool pressedLevel)
-{
+void ezButtonExt::setLevelMode(bool pressedLevel) {
     this->pressedLevel = pressedLevel;
 }
 
-void ezButtonExt::setLongClickTime(unsigned long time)
-{
-    longClickTime = time;
-}
+void ezButtonExt::setLongClickTime(unsigned long time) { longClickTime = time; }
 
-bool ezButtonExt::getState(void)
-{
-    return lastSteadyState;
-}
+bool ezButtonExt::getState(void) { return lastSteadyState; }
 
-bool ezButtonExt::getStateRaw(void)
-{
-    return digitalRead(btnPin);
-}
+bool ezButtonExt::getStateRaw(void) { return digitalRead(btnPin); }
 
-bool ezButtonExt::getSequentialShortClicks(unsigned int Num_Clicks)
-{
+bool ezButtonExt::getSequentialShortClicks(unsigned int Num_Clicks) {
     // If the last click was a long time ago
-    if ((millis() - lastDebounceTime) >= longClickTime)
-    {
+    if ((millis() - lastDebounceTime) >= longClickTime) {
         resetSequentialCont = true;
         // check if it is the expected case
-        if (sequentialShortClicks == Num_Clicks)
-        {
+        if (sequentialShortClicks == Num_Clicks) {
             return true;
         }
     }
     return false;
 }
 
-bool ezButtonExt::isPressed(void)
-{
+bool ezButtonExt::isPressed(void) {
     if (previousSteadyState != pressedLevel && lastSteadyState == pressedLevel)
         return true;
     else
         return false;
 }
 
-bool ezButtonExt::isReleased(void)
-{
+bool ezButtonExt::isReleased(void) {
     if (previousSteadyState == pressedLevel && lastSteadyState != pressedLevel)
         return true;
     else
         return false;
 }
 
-bool ezButtonExt::isLongClick(void)
-{
-    if (clickDetect == false)
-    {
-        if ((millis() - lastClickTime) >= longClickTime)
-        {
+bool ezButtonExt::isLongClick(void) {
+    if (clickDetect == false) {
+        if ((millis() - lastClickTime) >= longClickTime) {
             clickDetect = true;
             return true;
         }
@@ -123,12 +101,9 @@ bool ezButtonExt::isLongClick(void)
     return false;
 }
 
-bool ezButtonExt::isShortClick(void)
-{
-    if (isReleased())
-    {
-        if ((millis() - lastClickTime) < longClickTime)
-        {
+bool ezButtonExt::isShortClick(void) {
+    if (isReleased()) {
+        if ((millis() - lastClickTime) < longClickTime) {
             clickDetect = true;
             return true;
         }
@@ -136,23 +111,13 @@ bool ezButtonExt::isShortClick(void)
     return false;
 }
 
-void ezButtonExt::setCountMode(int mode)
-{
-    countMode = mode;
-}
+void ezButtonExt::setCountMode(int mode) { countMode = mode; }
 
-unsigned long ezButtonExt::getCount(void)
-{
-    return count;
-}
+unsigned long ezButtonExt::getCount(void) { return count; }
 
-void ezButtonExt::resetCount(void)
-{
-    count = 0;
-}
+void ezButtonExt::resetCount(void) { count = 0; }
 
-void ezButtonExt::loop(void)
-{
+void ezButtonExt::loop(void) {
     // read the state of the switch/button:
     int currentState = digitalRead(btnPin);
     unsigned long currentTime = millis();
@@ -162,58 +127,45 @@ void ezButtonExt::loop(void)
     // since the last press to ignore any noise:
 
     // If the switch/button changed, due to noise or pressing:
-    if (currentState != lastFlickerableState)
-    {
+    if (currentState != lastFlickerableState) {
         // reset the debouncing timer
         lastDebounceTime = currentTime;
         // save the the last flickerable state
         lastFlickerableState = currentState;
     }
 
-    if ((currentTime - lastDebounceTime) >= debounceTime)
-    {
-        // whatever the reading is at, it's been there for longer than the debounce
-        // delay, so take it as the actual current state:
+    if ((currentTime - lastDebounceTime) >= debounceTime) {
+        // whatever the reading is at, it's been there for longer than the
+        // debounce delay, so take it as the actual current state:
 
         // save the the steady state
         previousSteadyState = lastSteadyState;
         lastSteadyState = currentState;
     }
 
-    if (previousSteadyState != lastSteadyState)
-    {
+    if (previousSteadyState != lastSteadyState) {
         // Counter
-        if (countMode == COUNT_BOTH)
-        {
+        if (countMode == COUNT_BOTH) {
             count++;
-        }
-        else if (countMode == COUNT_FALLING)
-        {
-            if (isPressed())
-                count++;
-        }
-        else if (countMode == COUNT_RISING)
-        {
-            if (isReleased())
-                count++;
+        } else if (countMode == COUNT_FALLING) {
+            if (isPressed()) count++;
+        } else if (countMode == COUNT_RISING) {
+            if (isReleased()) count++;
         }
         // Short and Long click
-        if (isPressed())
-        {
+        if (isPressed()) {
             lastClickTime = lastDebounceTime;
             // clickDetect = false;
         }
 
         // Sequential Clicks
-        if (isShortClick())
-        {
+        if (isShortClick()) {
             sequentialShortClicks++;
         }
     }
 
     // Sequential Clicks
-    if (resetSequentialCont == true)
-    {
+    if (resetSequentialCont == true) {
         sequentialShortClicks = 0;
         resetSequentialCont = false;
     }

@@ -38,9 +38,8 @@
 #define COUNT_RISING 1
 #define COUNT_BOTH 2
 
-class ezButtonExt
-{
-private:
+class ezButtonExt {
+   private:
     // Config
     int btnPin;
     int countMode;
@@ -49,18 +48,19 @@ private:
     unsigned long longClickTime;
 
     // Variable used for logic
-    bool previousSteadyState;           // the previous steady state from the input pin, used to detect pressed and released event
-    bool lastSteadyState;               // the last steady state from the input pin
-    bool lastFlickerableState;          // the last flickerable state from the input pin
-    unsigned long lastDebounceTime;     // the last time the output pin was toggled
-    bool clickDetect;                   // Logic for short and long click detect
-    unsigned int sequentialShortClicks; // Counter of sequential clicks
-    bool resetSequentialCont;           // Logic for reset counter
+    bool previousSteadyState;   // the previous steady state from the input pin,
+                                // used to detect pressed and released event
+    bool lastSteadyState;       // the last steady state from the input pin
+    bool lastFlickerableState;  // the last flickerable state from the input pin
+    unsigned long lastDebounceTime;  // the last time the output pin was toggled
+    bool clickDetect;                // Logic for short and long click detect
+    unsigned int sequentialShortClicks;  // Counter of sequential clicks
+    bool resetSequentialCont;            // Logic for reset counter
 
-    unsigned long count;         // Counter
-    unsigned long lastClickTime; // last time the button was press
+    unsigned long count;          // Counter
+    unsigned long lastClickTime;  // last time the button was press
 
-public:
+   public:
     ezButtonExt(int pin);
     ezButtonExt(int pin, int mode);
     void setDebounceTime(unsigned long time);
